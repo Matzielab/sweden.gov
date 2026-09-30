@@ -1,0 +1,263 @@
+---
+import Layout from "@/layouts/Layout.astro"
+import Logo from "@/components/Logo.astro"
+import HeroScenes, { scenes } from "@/components/HeroScenes.astro"
+import FeatureArt from "@/components/FeatureArt.astro"
+import "@/styles/app.css"
+
+const CONTACT = "hello@matzielab.com"
+
+const navLinks = [
+  { href: "#sa-fungerar-det", label: "Så fungerar det" },
+  { href: "#integritet", label: "Integritet" },
+  { href: "#om", label: "Om sweden.gov" },
+  { href: "#webbplatser", label: "Webbplatser som söks" },
+  { href: "#kontakt", label: "Kontakt" },
+]
+
+const features = [
+  {
+    id: "sa-fungerar-det",
+    art: "sites" as const,
+    title: "150 webbplatser\ni en ruta.",
+    text: "Slipp leta från sajt till sajt. sweden.gov söker hos myndigheter, regioner och kommuner – och samlar svaret på ett ställe.",
+    link: { href: "#webbplatser", label: "Se vilka webbplatser som söks" },
+  },
+  {
+    id: "integritet",
+    art: "privacy" as const,
+    title: "Dina frågor\nsparas inte.",
+    text: "Frågor och svar lagras inte hos oss – samtalet finns bara i din webbläsarflik. För att ta fram svaret skickas frågan till en AI-tjänst och till sökmotorer, så skriv inga personuppgifter.",
+    link: { href: "#om", label: "Läs mer om tjänsten" },
+  },
+  {
+    id: "kallor",
+    art: "sources" as const,
+    title: "Tydliga svar.\nOfficiella källor.",
+    text: "Varje svar bygger på myndigheternas egna sidor och länkar tillbaka till källan, så att du alltid kan kontrollera.",
+    link: { href: "#webbplatser", label: "Om källorna" },
+  },
+  {
+    id: "ingen-app",
+    art: "devices" as const,
+    title: "Ingen app\natt ladda ner.",
+    text: "Öppna sweden.gov i webbläsaren – på mobilen, surfplattan eller datorn.",
+    link: { href: "#top", label: "Ställ en fråga", focusPrompt: true },
+  },
+]
+---
+
+<Layout>
+  <aside class="concept-banner" aria-label="Om projektet">
+    <svg class="concept-flag" viewBox="0 0 16 10" aria-hidden="true">
+      <rect width="16" height="10" rx="1.5" fill="var(--blue)"></rect>
+      <rect x="5" width="2" height="10" fill="var(--yellow)"></rect>
+      <rect y="4" width="16" height="2" fill="var(--yellow)"></rect>
+    </svg>
+    <p>
+      Detta är ett testkoncept av <a
+        href="https://matzielab.com"
+        target="_blank"
+        rel="noopener noreferrer">Matzielab</a
+      >
+    </p>
+  </aside>
+
+  <div class="top-panel" id="top">
+    <header class="site-header">
+      <Logo />
+      <nav class="header-actions" aria-label="Huvudmeny">
+        <button type="button" class="pill-button ghost" id="new-question" hidden>Ny fråga</button>
+        <div class="menu">
+          <button
+            type="button"
+            class="pill-button"
+            id="menu-button"
+            aria-expanded="false"
+            aria-controls="menu-panel">Meny</button
+          >
+          <div class="menu-panel" id="menu-panel" hidden>
+            <ul>
+              {
+                navLinks.map((link) => (
+                  <li>
+                    <a href={link.href}>{link.label}</a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main" class="app">
+      <section class="hero" id="hero" aria-labelledby="hero-title">
+        <h1 id="hero-title">Hej, Sverige</h1>
+        <p class="hero-lede">Vad du än behöver från det offentliga – börja här.</p>
+
+        <div class="stage">
+          <div class="composer-slot" id="composer-home">
+            <form class="composer" id="composer" autocomplete="off">
+              <label for="prompt" class="visually-hidden">Din fråga</label>
+              <textarea
+                id="prompt"
+                name="prompt"
+                rows="1"
+                maxlength="2000"
+                placeholder={`Prova: ”${scenes[0].question}”`}
+                enterkeyhint="send"></textarea>
+              <button type="submit" class="send" id="send" aria-label="Skicka fråga" disabled>
+                <svg class="icon-send" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+                </svg>
+                <svg class="icon-stop" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"></rect>
+                </svg>
+              </button>
+            </form>
+          </div>
+
+          <div class="scene-card">
+            <HeroScenes />
+          </div>
+
+          <div class="carousel-controls" aria-label="Bildspel med exempelfrågor">
+            <button type="button" class="round-button" id="scene-prev" aria-label="Föregående exempel">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M10 3.5L5.5 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+            <button type="button" class="round-button" id="scene-toggle" aria-label="Pausa bildspelet">
+              <svg class="icon-pause" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M5.5 3.5v9M10.5 3.5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+              </svg>
+              <svg class="icon-play" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M5 3.2v9.6L12.5 8z" fill="currentColor"></path>
+              </svg>
+            </button>
+            <button type="button" class="round-button" id="scene-next" aria-label="Nästa exempel">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="thread column" id="thread" aria-live="polite" aria-label="Frågor och svar">
+      </section>
+
+      <div class="composer-dock composer-slot" id="composer-dock"></div>
+    </main>
+  </div>
+
+  <section class="features" aria-label="Om tjänsten">
+    {
+      features.map((feature) => (
+        <article class="feature" id={feature.id}>
+          <div class="feature-art">
+            <FeatureArt kind={feature.art} />
+          </div>
+          <div class="feature-text">
+            <h2>{feature.title}</h2>
+            <p>{feature.text}</p>
+            <a href={feature.link.href} class="text-link" data-focus-prompt={feature.link.focusPrompt ? "" : undefined}>
+              {feature.link.label}
+            </a>
+          </div>
+        </article>
+      ))
+    }
+  </section>
+
+  <section class="about" id="om" aria-labelledby="about-title">
+    <div class="column">
+      <h2 class="section-title" id="about-title">Om sweden.gov</h2>
+      <p class="about-lede">
+        Ett försök att göra den offentliga sektorn enklare att hitta i. I stället för att du ska veta
+        vilken av hundratals myndigheter som ansvarar för din fråga, ställer du den med egna ord.
+      </p>
+      <p>
+        Tjänsten söker på myndigheternas, regionernas och kommunernas egna webbplatser, läser de
+        sidor som är relevanta och sammanfattar svaret – med länkar tillbaka till originalkällan.
+        Myndigheternas webbplatser finns kvar precis som vanligt. Det är där du ansöker, loggar in
+        med BankID och sköter dina ärenden.
+      </p>
+
+      <div class="poc-note">
+        <span class="poc-label">Proof of concept</span>
+        <p>
+          sweden.gov är ett proof of concept byggt av <a
+            href="https://matzielab.com"
+            target="_blank"
+            rel="noopener noreferrer">Matzielab</a
+          >. Det är inte en officiell myndighetstjänst och har ingen koppling till Regeringskansliet
+          eller någon myndighet. Svaren skrivs av en AI-modell och kan innehålla fel – kontrollera
+          alltid viktiga uppgifter hos källan.
+        </p>
+      </div>
+
+      <h3 class="subsection-title">Behöver du hjälp nu?</h3>
+      <ul class="numbers">
+        <li><strong>112</strong><span>Nödsituation</span></li>
+        <li><strong>1177</strong><span>Sjukvårdsrådgivning</span></li>
+        <li><strong>114 14</strong><span>Polisen, ej akut</span></li>
+        <li><strong>113 13</strong><span>Information vid allvarliga händelser</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="websites" id="webbplatser" aria-labelledby="websites-title">
+    <div class="column">
+      <h2 class="section-title" id="websites-title">Webbplatser som söks</h2>
+      <p>
+        Svaren hämtas bara från den här listan över offentliga webbplatser. Allt annat sorteras
+        bort – även om en sökmotor hittar det.
+      </p>
+      <div class="site-list" id="site-list" data-state="loading">
+        <div class="site-list-body" id="site-list-body">
+          <p class="muted">Laddar…</p>
+        </div>
+        <button type="button" class="pill-button ghost site-list-toggle" id="site-list-toggle" hidden>
+          Visa alla
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="kontakt" aria-labelledby="cta-title">
+    <div class="column">
+      <h2 class="section-title" id="cta-title">Vill du bygga vidare?</h2>
+      <p>
+        sweden.gov är ett experiment från Matzielab. Vill du finansiera det, göra något liknande för
+        din organisation – eller bygga något helt annat häftigt? Hör av dig.
+      </p>
+      <a class="pill-button large" href={`mailto:${CONTACT}`}>{CONTACT}</a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="Sidfot">
+      {navLinks.map((link) => <a href={link.href}>{link.label}</a>)}
+    </nav>
+    <p class="wordmark" aria-hidden="true">sweden<span>.gov</span></p>
+    <div class="footer-bottom">
+      <span>
+        Ett proof of concept av <a href="https://matzielab.com" target="_blank" rel="noopener noreferrer">Matzielab</a>
+      </span>
+      <span class="footer-seal">Ingen officiell myndighetstjänst</span>
+      <span><a href={`mailto:${CONTACT}`}>{CONTACT}</a></span>
+    </div>
+  </footer>
+</Layout>
+
+<script>
+  import "@/scripts/app"
+</script>

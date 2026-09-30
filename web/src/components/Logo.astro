@@ -1,0 +1,39 @@
+---
+/** The mark — a quiet nod to the flag — and the wordmark. */
+---
+
+<a href="/" class="logo" aria-label="sweden.gov – startsida" data-reset>
+  <svg class="logo-mark" viewBox="0 0 16 10" aria-hidden="true">
+    <rect width="16" height="10" rx="1.6" fill="var(--blue)"></rect>
+    <rect x="5" width="2" height="10" fill="var(--yellow)"></rect>
+    <rect y="4" width="16" height="2" fill="var(--yellow)"></rect>
+  </svg>
+  <span class="logo-word">sweden<span class="logo-tld">.gov</span></span>
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .logo:hover {
+    color: var(--ink);
+  }
+  .logo-mark {
+    width: 24px;
+    height: 15px;
+    flex: none;
+  }
+  .logo-word {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .logo-tld {
+    color: var(--blue);
+  }
+</style>

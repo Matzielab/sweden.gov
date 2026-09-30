@@ -1,0 +1,245 @@
+---
+/** The rounded illustration tiles next to each feature. Pure CSS/SVG, no images. */
+interface Props {
+  kind: "sites" | "privacy" | "sources" | "devices"
+}
+const { kind } = Astro.props
+
+// "sites": a wall of tiny agency-ish web pages
+const pageAccents = ["#005293", "#fecb00", "#a93a2e", "#2f5b47", "#e2b04f", "#6fa596", "#1f4e79", "#cf7a52", "#86a3b9"]
+const pages = Array.from({ length: 16 }, (_, i) => pageAccents[i % pageAccents.length])
+
+// "sources": circles, a few of them holding topic icons
+const icons: Record<string, string> = {
+  doc: "M7 3h7l4 4v14H7z M14 3v4h4 M10 12h6 M10 16h6",
+  scale: "M12 4v16 M7 20h10 M5 8h14 M5 8l-2.5 6h5z M19 8l-2.5 6h5z",
+  home: "M4 11l8-7 8 7 M6 10v10h12V10 M10 20v-6h4v6",
+  heart: "M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z",
+  cap: "M2 9l10-5 10 5-10 5z M6 11v5c3 2 9 2 12 0v-5",
+}
+const circles = [null, "doc", null, "scale", "check", "home", null, "heart", "cap"]
+---
+
+<div class:list={["art", `art-${kind}`]} aria-hidden="true">
+  {
+    kind === "sites" && (
+      <div class="art-pages">
+        {pages.map((accent, i) => (
+          <div class="mini-page">
+            <span class="mini-bar" style={`background:${accent}`} />
+            <span class="mini-line" />
+            <span class="mini-line short" />
+            {i % 3 === 0 && <span class="mini-block" style={`background:${accent}`} />}
+            <span class="mini-line" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    kind === "privacy" && (
+      <>
+        <span class="stars" />
+        <span class="lock">
+          <svg viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2" />
+            <circle cx="12" cy="16" r="1.6" fill="#fff" />
+          </svg>
+        </span>
+      </>
+    )
+  }
+
+  {
+    kind === "sources" && (
+      <div class="art-circles">
+        {circles.map((icon) => (
+          <span class:list={["circle", { "circle-check": icon === "check" }]}>
+            {icon === "check" ? (
+              <svg viewBox="0 0 24 24">
+                <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            ) : icon ? (
+              <svg viewBox="0 0 24 24">
+                <path d={icons[icon]} fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            ) : null}
+          </span>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    kind === "devices" && (
+      <div class="art-dock">
+        <span class="device">
+          <svg viewBox="0 0 24 24">
+            <rect x="7" y="2.5" width="10" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <path d="M11 18.5h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="device">
+          <svg viewBox="0 0 24 24">
+            <rect x="4" y="5" width="16" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <path d="M2 19h20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="device">
+          <svg viewBox="0 0 24 24">
+            <rect x="4.5" y="3" width="15" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="12" cy="18" r="0.9" fill="currentColor" />
+          </svg>
+        </span>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .art {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 44px;
+    background: #eef1f4;
+  }
+
+  /* sites */
+  .art-sites {
+    background: #0f2742;
+  }
+  .art-pages {
+    position: absolute;
+    inset: -22%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: max-content;
+    align-content: center;
+    gap: 9px;
+    transform: rotate(-9deg);
+  }
+  .mini-page {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 0 10px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #fff;
+    aspect-ratio: 0.8;
+  }
+  .mini-bar {
+    height: 14px;
+    margin-bottom: 4px;
+  }
+  .mini-line {
+    height: 4px;
+    margin: 0 8px;
+    border-radius: 2px;
+    background: #d9dee4;
+  }
+  .mini-line.short {
+    width: 45%;
+  }
+  .mini-block {
+    height: 26px;
+    margin: 2px 8px;
+    border-radius: 4px;
+    opacity: 0.25;
+  }
+
+  /* privacy */
+  .art-privacy {
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 50% 110%, #1d4f86 0%, #0b1f3a 60%, #081629 100%);
+  }
+  .stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1.2px 1.2px at 18% 22%, #fff 99%, transparent),
+      radial-gradient(1px 1px at 72% 14%, #fff 99%, transparent),
+      radial-gradient(1.4px 1.4px at 84% 40%, #fff 99%, transparent),
+      radial-gradient(1px 1px at 30% 66%, #fff 99%, transparent),
+      radial-gradient(1.2px 1.2px at 58% 30%, #fecb00 99%, transparent),
+      radial-gradient(1px 1px at 12% 84%, #fff 99%, transparent),
+      radial-gradient(1px 1px at 66% 78%, #fff 99%, transparent),
+      radial-gradient(1.3px 1.3px at 44% 12%, #fff 99%, transparent);
+    opacity: 0.8;
+  }
+  .lock {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: #fff;
+    color: #0f2742;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  }
+  .lock svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  /* sources */
+  .art-circles {
+    position: absolute;
+    inset: -14%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    align-content: center;
+  }
+  .circle {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--blue);
+    box-shadow: 0 4px 14px rgba(20, 33, 46, 0.06);
+  }
+  .circle svg {
+    width: 38%;
+    height: 38%;
+  }
+  .circle-check {
+    background: var(--blue);
+    color: #fff;
+    box-shadow: 0 0 0 6px rgba(254, 203, 0, 0.55);
+  }
+
+  /* devices */
+  .art-devices {
+    display: grid;
+    place-items: center;
+  }
+  .art-dock {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 26px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(20, 33, 46, 0.08);
+  }
+  .device {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: #f1f5f9;
+    color: var(--blue);
+  }
+  .device svg {
+    width: 30px;
+    height: 30px;
+  }
+</style>

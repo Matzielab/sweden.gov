@@ -1,0 +1,368 @@
+---
+/**
+ * The hero's picture carousel: four flat Swedish scenes, each paired with an
+ * example question. Clicking a scene asks its question — the carousel is the
+ * suggestion list (app.ts binds [data-suggestion]).
+ */
+
+export const scenes = [
+  { id: "stuga", question: "Hur fungerar ROT-avdraget?" },
+  { id: "park", question: "Hur mycket får jag i föräldrapenning?" },
+  { id: "fjall", question: "Hur byter jag ett utländskt körkort till ett svenskt?" },
+  { id: "skargard", question: "Hur ansöker jag om pass?" },
+]
+
+// Deterministic "random", so the forest looks the same on every build
+const rand = (i: number) => {
+  const v = Math.sin(i * 127.1 + 311.7) * 43758.5453
+  return v - Math.floor(v)
+}
+
+/** A three-tier spruce as one path. */
+const spruce = (x: number, base: number, h: number) => {
+  const w = h * 0.46
+  const tier = (top: number, bottom: number, width: number) =>
+    `M${x.toFixed(1)} ${top.toFixed(1)}L${(x + width / 2).toFixed(1)} ${bottom.toFixed(1)}L${(x - width / 2).toFixed(1)} ${bottom.toFixed(1)}Z`
+  return (
+    tier(base - h, base - h * 0.45, w * 0.6) +
+    tier(base - h * 0.72, base - h * 0.2, w * 0.8) +
+    tier(base - h * 0.46, base, w)
+  )
+}
+
+const forest = (from: number, to: number, base: number, min: number, max: number, seed: number) => {
+  const trees: string[] = []
+  for (let x = from, i = 0; x < to; x += 11 + rand(seed + i) * 7, i++) {
+    trees.push(spruce(x, base + rand(seed + i + 99) * 4, min + rand(seed + i + 50) * (max - min)))
+  }
+  return trees.join("")
+}
+
+// Scene 1: the ladder against the cottage wall
+const ladder = Array.from({ length: 6 }, (_, i) => {
+  const t = (i + 0.6) / 6.4
+  const lerp = (a: number, b: number) => (a + (b - a) * t).toFixed(1)
+  return `M${lerp(350, 373)} ${lerp(294, 228)}L${lerp(364, 387)} ${lerp(294, 228)}`
+}).join("")
+
+const flowers = Array.from({ length: 22 }, (_, i) => ({
+  x: 300 + rand(i + 7) * 300,
+  y: 305 + rand(i + 31) * 70,
+  c: i % 3 === 0 ? "#fff" : "#fecb00",
+}))
+
+// Scene 2: a row of Stockholm-ish facades
+const facadeColors = ["#e2b04f", "#cf7a52", "#efd9a0", "#b7c7a1", "#d99a8c", "#e8c77d", "#c86f4d", "#d8cfb8"]
+const buildings = (() => {
+  const widths = [70, 58, 82, 54, 76, 64, 88, 62, 70]
+  const heights = [112, 134, 96, 146, 106, 128, 100, 122, 110]
+  let x = -12
+  return widths.map((w, i) => {
+    const h = heights[i]
+    const b = { x, y: 252 - h, w, h, color: facadeColors[i % facadeColors.length], windows: [] as { x: number; y: number }[] }
+    const cols = Math.floor((w - 14) / 15)
+    const rows = Math.floor((h - 26) / 22)
+    const offset = (w - cols * 15) / 2 + 3
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) b.windows.push({ x: x + offset + c * 15, y: b.y + 16 + r * 22 })
+    x += w
+    return b
+  })
+})()
+
+// Scene 3: the road's centre dashes, growing toward the viewer
+const dashes = Array.from({ length: 7 }, (_, i) => {
+  const t0 = Math.pow(i / 7, 1.7)
+  const t1 = Math.pow((i + 0.5) / 7, 1.7)
+  const y = (t: number) => 252 + t * 128
+  return { y1: y(t0), y2: y(t1), w: 1.5 + t0 * 5 }
+})
+---
+
+<div class="scenes" id="scenes">
+  {
+    scenes.map((scene, index) => (
+      <button
+        type="button"
+        class:list={["scene", { active: index === 0 }]}
+        data-suggestion={scene.question}
+        data-index={index}
+        aria-label={`Fråga: ${scene.question}`}
+        tabindex={index === 0 ? 0 : -1}
+        aria-hidden={index === 0 ? undefined : "true"}
+      >
+        {scene.id === "stuga" && (
+          <svg viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="st-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#bcdaef" />
+                <stop offset="1" stop-color="#eef6fb" />
+              </linearGradient>
+              <linearGradient id="st-lake" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#84b4d6" />
+                <stop offset="1" stop-color="#4d86b3" />
+              </linearGradient>
+            </defs>
+            <rect width="600" height="380" fill="url(#st-sky)" />
+            <circle cx="118" cy="138" r="24" fill="#fff4cc" />
+            <g fill="#fff" opacity=".85">
+              <ellipse cx="420" cy="132" rx="34" ry="10" />
+              <ellipse cx="446" cy="124" rx="22" ry="10" />
+              <ellipse cx="238" cy="150" rx="26" ry="7" />
+            </g>
+            <path d="M0 226C90 198 170 212 250 202C340 190 440 214 600 198V262H0Z" fill="#a9c8b5" />
+            <path d={forest(-10, 610, 254, 36, 76, 1)} fill="#2f5b47" />
+            <rect y="252" width="600" height="128" fill="url(#st-lake)" />
+            <path
+              d="M36 274h58M130 292h84M56 320h110M18 352h64M200 340h40"
+              stroke="#fff"
+              stroke-opacity=".35"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+            <path d="M252 262C300 251 360 245 420 247C500 249 560 253 600 251V380H300C290 340 272 300 252 262Z" fill="#8fc27a" />
+            <path d="M330 380C362 342 440 322 600 320V380Z" fill="#7cb068" />
+            {flowers.map((f) => (
+              <circle cx={f.x} cy={f.y} r="2.4" fill={f.c} />
+            ))}
+            <g fill="#8a6b4f">
+              <rect x="176" y="286" width="92" height="7" rx="2" />
+              <rect x="186" y="292" width="4" height="14" />
+              <rect x="214" y="292" width="4" height="14" />
+              <rect x="242" y="292" width="4" height="12" />
+            </g>
+            <path d="M118 304h62l-9 11h-44z" fill="#c94f3d" />
+            <path d="M118 304h62" stroke="#fff" stroke-width="2" />
+            <rect x="480" y="168" width="14" height="32" fill="#a93a2e" />
+            <rect x="478" y="164" width="18" height="6" fill="#fff" />
+            <rect x="370" y="214" width="150" height="76" fill="#a93a2e" />
+            <path d="M360 216L445 166L530 216Z" fill="#3d4147" />
+            <path d="M360 216L445 166L530 216" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round" />
+            <rect x="370" y="214" width="6" height="76" fill="#fff" />
+            <rect x="514" y="214" width="6" height="76" fill="#fff" />
+            <rect x="366" y="288" width="158" height="6" fill="#7d7a74" />
+            <rect x="437" y="186" width="16" height="16" fill="#fff" />
+            <rect x="440" y="189" width="10" height="10" fill="#9cc3dc" />
+            <g>
+              <rect x="386" y="232" width="32" height="28" fill="#fff" />
+              <rect x="389" y="235" width="26" height="22" fill="#9cc3dc" />
+              <path d="M402 235v22M389 246h26" stroke="#fff" stroke-width="2" />
+              <rect x="474" y="232" width="32" height="28" fill="#fff" />
+              <rect x="477" y="235" width="26" height="22" fill="#9cc3dc" />
+              <path d="M490 235v22M477 246h26" stroke="#fff" stroke-width="2" />
+            </g>
+            <rect x="431" y="240" width="28" height="50" fill="#fff" />
+            <rect x="434" y="243" width="22" height="47" fill="#7b271f" />
+            <circle cx="451" cy="268" r="1.6" fill="#fecb00" />
+            <g stroke="#8a6f55" stroke-width="3" stroke-linecap="round">
+              <path d="M350 294L373 228M364 294L387 228" />
+              <path d={ladder} stroke-width="2.4" />
+            </g>
+            <rect x="330" y="282" width="12" height="11" rx="1.5" fill="#e8e3d8" />
+            <rect x="330" y="282" width="12" height="3" fill="#a93a2e" />
+            <rect x="543.5" y="150" width="3" height="144" fill="#fff" stroke="#dfe6ec" stroke-width=".6" />
+            <circle cx="545" cy="148" r="3" fill="#e2b04f" />
+            <path d="M546.5 152L592 160L546.5 163Z" fill="#005293" />
+            <path d="M546.5 157.5L588 160" stroke="#fecb00" stroke-width="2" />
+            <g>
+              <rect x="578" y="206" width="6" height="66" fill="#f4f1ea" />
+              <path d="M578 222h3M581 236h3M578 250h2M580 262h4" stroke="#2c2c2c" stroke-width="2" />
+              <circle cx="581" cy="196" r="20" fill="#9fcf6e" />
+              <circle cx="566" cy="208" r="13" fill="#8dc160" />
+              <circle cx="596" cy="210" r="14" fill="#8dc160" />
+            </g>
+            <g>
+              <rect x="312" y="214" width="5" height="52" fill="#f4f1ea" />
+              <path d="M312 228h2M314 242h3M312 254h2" stroke="#2c2c2c" stroke-width="1.6" />
+              <circle cx="315" cy="206" r="15" fill="#9fcf6e" />
+              <circle cx="304" cy="214" r="10" fill="#8dc160" />
+            </g>
+          </svg>
+        )}
+
+        {scene.id === "park" && (
+          <svg viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="pk-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#f7d8c3" />
+                <stop offset="1" stop-color="#fdf2e8" />
+              </linearGradient>
+            </defs>
+            <rect width="600" height="380" fill="url(#pk-sky)" />
+            <circle cx="486" cy="128" r="28" fill="#ffe6b5" />
+            <path d="M210 150l6 5 6-5M232 140l5 4 5-4" stroke="#8a7a70" stroke-width="1.8" fill="none" stroke-linecap="round" />
+            {buildings.map((b, i) => (
+              <g>
+                <rect x={b.x} y={b.y} width={b.w} height={b.h} fill={b.color} />
+                {i === 3 ? (
+                  <path d={`M${b.x} ${b.y}L${b.x + b.w / 2} ${b.y - 26}L${b.x + b.w} ${b.y}Z`} fill="#6fa596" />
+                ) : (
+                  <rect x={b.x - 2} y={b.y - 5} width={b.w + 4} height="6" fill="#5b4a42" />
+                )}
+                {b.windows.map((w) => (
+                  <rect x={w.x} y={w.y} width="8" height="11" rx="1" fill="#fff" opacity=".78" />
+                ))}
+              </g>
+            ))}
+            <rect y="252" width="600" height="128" fill="#a5cc84" />
+            <g fill="#7fb46a">
+              <circle cx="190" cy="252" r="16" />
+              <circle cx="214" cy="256" r="12" />
+              <circle cx="420" cy="252" r="15" />
+              <circle cx="560" cy="254" r="14" />
+              <circle cx="584" cy="258" r="11" />
+            </g>
+            <path d="M-10 334C150 304 300 302 610 274V304C320 334 160 336 -10 366Z" fill="#efe3cc" />
+            <rect x="80" y="188" width="12" height="96" rx="3" fill="#6b4f3a" />
+            <g fill="#6aa45a">
+              <circle cx="86" cy="176" r="40" />
+              <circle cx="56" cy="198" r="28" />
+              <circle cx="116" cy="202" r="30" />
+            </g>
+            <g fill="#8a6b4f">
+              <rect x="470" y="282" width="56" height="6" rx="2" />
+              <rect x="470" y="270" width="56" height="5" rx="2" />
+              <rect x="474" y="288" width="4" height="12" />
+              <rect x="518" y="288" width="4" height="12" />
+            </g>
+            <g>
+              <ellipse cx="350" cy="330" rx="46" ry="4" fill="#000" opacity=".08" />
+              <circle cx="320" cy="318" r="9" fill="#2b3440" />
+              <circle cx="354" cy="318" r="9" fill="#2b3440" />
+              <circle cx="320" cy="318" r="3" fill="#cfd6dd" />
+              <circle cx="354" cy="318" r="3" fill="#cfd6dd" />
+              <path d="M304 288h62c0 16-13 24-31 24s-31-8-31-24z" fill="#1f4e79" />
+              <path d="M304 290a28 28 0 0 1 32-28v28z" fill="#173d61" />
+              <path d="M366 290l12-22" stroke="#2b3440" stroke-width="3" stroke-linecap="round" />
+              <path d="M373 267h11" stroke="#2b3440" stroke-width="4" stroke-linecap="round" />
+            </g>
+            <g>
+              <rect x="388" y="282" width="7" height="40" rx="3" fill="#2f3a4a" />
+              <rect x="399" y="282" width="7" height="40" rx="3" fill="#2f3a4a" />
+              <rect x="382" y="234" width="30" height="54" rx="12" fill="#e0a43f" />
+              <path d="M388 250L378 268" stroke="#e0a43f" stroke-width="7" stroke-linecap="round" />
+              <circle cx="397" cy="221" r="11" fill="#e8c2a0" />
+              <path d="M386 220a11 11 0 0 1 22 0c-5-4-13-5-22 0z" fill="#5a3e2b" />
+            </g>
+          </svg>
+        )}
+
+        {scene.id === "fjall" && (
+          <svg viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="fj-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#cbe4f4" />
+                <stop offset="1" stop-color="#f1f8fc" />
+              </linearGradient>
+            </defs>
+            <rect width="600" height="380" fill="url(#fj-sky)" />
+            <g fill="#fff" opacity=".9">
+              <ellipse cx="130" cy="140" rx="30" ry="9" />
+              <ellipse cx="152" cy="133" rx="18" ry="9" />
+              <ellipse cx="500" cy="150" rx="26" ry="8" />
+            </g>
+            <path d="M0 232L70 172L120 202L190 132L262 206L330 152L400 212L470 142L540 196L600 162V262H0Z" fill="#9fb4c8" />
+            <g fill="#fff">
+              <path d="M190 132L171 154L181 151L190 159L199 150L209 153Z" />
+              <path d="M470 142L452 162L462 160L470 167L478 159L488 161Z" />
+              <path d="M330 152L316 168L324 166L330 172L337 166L345 168Z" />
+              <path d="M70 172L58 184L66 183L71 188L76 183L82 184Z" />
+            </g>
+            <path d="M0 244C90 226 200 238 300 232C400 226 500 240 600 230V262H0Z" fill="#86a3b9" />
+            <rect y="256" width="600" height="124" fill="#b6cf93" />
+            <path d={forest(-10, 282, 262, 26, 56, 7) + forest(338, 610, 262, 26, 56, 23)} fill="#2f5b47" />
+            <path d="M0 330C120 310 180 318 200 380H0Z M600 322C480 306 430 320 420 380H600Z" fill="#a3c27f" />
+            <path d="M301 252H317L470 380H150Z" fill="#59616b" />
+            <path d="M302 252L160 380M316 252L460 380" stroke="#fff" stroke-width="2" opacity=".85" />
+            {dashes.map((d) => (
+              <path d={`M309.5 ${d.y1.toFixed(1)}V${d.y2.toFixed(1)}`} stroke="#fff" stroke-width={d.w.toFixed(1)} />
+            ))}
+            {/* Further up the road, clear of the caption */}
+            <g transform="translate(73 44.25) scale(.75)">
+              <ellipse cx="360" cy="349" rx="38" ry="4" fill="#000" opacity=".22" />
+              <rect x="332" y="339" width="12" height="9" rx="2" fill="#222" />
+              <rect x="376" y="339" width="12" height="9" rx="2" fill="#222" />
+              <path d="M336 318L342 298H378L384 318Z" fill="#9c2a23" />
+              <path d="M343 316L347 302H373L377 316Z" fill="#cfe3f0" />
+              <rect x="328" y="316" width="64" height="26" rx="4" fill="#b8322a" />
+              <rect x="331" y="322" width="10" height="6" rx="1" fill="#ff6b5a" />
+              <rect x="379" y="322" width="10" height="6" rx="1" fill="#ff6b5a" />
+              <rect x="350" y="330" width="20" height="7" rx="1" fill="#fff" />
+              <rect x="350" y="330" width="3.5" height="7" fill="#005293" />
+            </g>
+            <rect x="478" y="258" width="4" height="72" fill="#9aa3ad" />
+            <path d="M480 212L511 262H449Z" fill="#fecb00" stroke="#d4271f" stroke-width="5" stroke-linejoin="round" />
+            <g fill="#1b1b1b">
+              <ellipse cx="484" cy="246" rx="9" ry="5" />
+              <rect x="477" y="249" width="2" height="8" />
+              <rect x="480.5" y="249" width="2" height="8" />
+              <rect x="486.5" y="249" width="2" height="8" />
+              <rect x="490" y="249" width="2" height="8" />
+              <path d="M477 244L471 240L466 242L466 245.5L471 246.5L476 249Z" />
+            </g>
+            <path d="M471 240l-3-4M471 240l1-5M471 240l4-3" stroke="#1b1b1b" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        )}
+
+        {scene.id === "skargard" && (
+          <svg viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="sk-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#cfe5f6" />
+                <stop offset="1" stop-color="#f4f9fd" />
+              </linearGradient>
+              <linearGradient id="sk-sea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#7bb3d9" />
+                <stop offset="1" stop-color="#3f7fb0" />
+              </linearGradient>
+            </defs>
+            <rect width="600" height="380" fill="url(#sk-sky)" />
+            <circle cx="120" cy="176" r="22" fill="#fff1c9" />
+            <path d="M170 196L386 150" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9" />
+            <g transform="translate(404 146) rotate(-12)">
+              <path d="M-8 1L10 1L-10 22L-17 22Z" fill="#dce5ec" />
+              <rect x="-34" y="-5" width="68" height="10" rx="5" fill="#fff" stroke="#c7d3dd" stroke-width="1" />
+              <path d="M-8 -1L10 -1L-10 -16L-16 -16Z" fill="#eef3f7" />
+              <path d="M-34 -3L-26 -3L-31 -17L-37 -17Z" fill="#005293" />
+              <path d="M-20 -1h36" stroke="#9fb3c4" stroke-width="1.6" stroke-dasharray="2 3" />
+            </g>
+            <rect y="236" width="600" height="144" fill="url(#sk-sea)" />
+            <path d="M18 237C60 223 112 223 152 237Z M384 237C424 227 472 227 522 237Z" fill="#4f7a63" />
+            <path d="M40 316C70 280 140 268 204 284C236 292 248 306 240 320H32Z" fill="#c7b4a6" />
+            <path d="M70 304C110 290 160 292 206 300C224 304 236 312 238 320H56Z" fill="#b09c8e" />
+            <path d="M88 286C110 276 140 274 170 280Z" fill="#8ab377" />
+            <rect x="112" y="252" width="44" height="30" fill="#a93a2e" />
+            <path d="M107 254L134 236L161 254Z" fill="#3d4147" />
+            <rect x="126" y="262" width="14" height="20" fill="#fff" />
+            <rect x="129" y="265" width="8" height="17" fill="#7b271f" />
+            <path d="M360 334C390 294 470 288 540 302C582 311 600 326 600 344H360Z" fill="#cbb9ab" />
+            <path d="M400 334C440 318 520 316 600 330V344H392Z" fill="#b5a293" />
+            <path d="M471 302H491L487 224H475Z" fill="#fff" />
+            <path d="M473.6 252H488.4L488.9 264H473.1Z M472.3 280H489.7L490.3 292H471.7Z" fill="#c9372c" />
+            <rect x="469" y="221" width="24" height="3" fill="#3d4147" />
+            <rect x="473" y="208" width="16" height="13" fill="#fef3c4" stroke="#3d4147" stroke-width="1.5" />
+            <path d="M471 208L481 198L491 208Z" fill="#3d4147" />
+            <path d="M262 304h42l-7 8h-28z" fill="#fff" />
+            <path d="M283 302V250" stroke="#3d4147" stroke-width="1.6" />
+            <path d="M285 300V254L306 298Z" fill="#fff" />
+            <path d="M281 300V260L264 298Z" fill="#eef2f5" />
+            <path
+              d="M30 340h60M120 356h90M250 330h50M300 352h70M430 362h80"
+              stroke="#fff"
+              stroke-opacity=".3"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+          </svg>
+        )}
+
+        <span class="scene-caption">
+          <span class="scene-caption-label">Fråga</span>
+          {scene.question}
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+      </button>
+    ))
+  }
+</div>

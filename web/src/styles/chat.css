@@ -1,0 +1,310 @@
+/* ---------- The conversation: questions, agent activity, answers, sources ---------- */
+
+.turn + .turn {
+  margin-top: 3rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.question {
+  margin: 0 0 1rem;
+  font-family: var(--serif);
+  font-size: clamp(1.9rem, 4.5vw, 2.5rem);
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+/* What the agent is doing */
+.activity {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.activity summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.activity summary::-webkit-details-marker {
+  display: none;
+}
+.activity summary::after {
+  content: "";
+  width: 0.45em;
+  height: 0.45em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+.activity[open] summary::after {
+  transform: rotate(45deg) translate(-2px, -2px);
+}
+.activity ol {
+  margin: 0.6rem 0 0;
+  padding: 0 0 0 0.25rem;
+  list-style: none;
+  border-left: 2px solid var(--line);
+}
+.activity li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  padding: 0.2rem 0 0.2rem 0.85rem;
+  overflow-wrap: anywhere;
+}
+.activity li .state {
+  flex: none;
+  width: 0.95rem;
+  text-align: center;
+}
+.activity li.done .state {
+  color: var(--blue);
+}
+.activity li.failed .state {
+  color: var(--danger);
+}
+.activity q {
+  color: var(--ink);
+}
+
+.spinner {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 2px solid var(--line);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: -0.1em;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The answer */
+.answer {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* Last line of defence: nothing in the thread may widen the page.
+   (No max-width on .thread — it's a .column, which sets the 760px width.) */
+.thread,
+.turn {
+  min-width: 0;
+}
+.app {
+  overflow-x: clip;
+}
+.answer > :first-child {
+  margin-top: 0;
+}
+.answer > :last-child {
+  margin-bottom: 0;
+}
+.answer p,
+.answer ul,
+.answer ol {
+  margin: 0 0 0.9em;
+}
+.answer ul,
+.answer ol {
+  padding-left: 1.4em;
+}
+.answer li + li {
+  margin-top: 0.3em;
+}
+.answer li::marker {
+  color: var(--blue);
+}
+.answer h1,
+.answer h2,
+.answer h3,
+.answer h4 {
+  margin: 1.5em 0 0.5em;
+  font-size: 1.08rem;
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.answer strong {
+  font-weight: 650;
+}
+.answer table {
+  width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.answer th,
+.answer td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.answer th {
+  font-weight: 650;
+  background: var(--paper);
+}
+.answer blockquote {
+  margin: 0 0 1em;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 3px solid var(--yellow);
+  color: var(--muted);
+}
+.answer code {
+  padding: 0.1em 0.35em;
+  border-radius: 5px;
+  background: var(--paper);
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+/* Wide content scrolls inside the answer — never the whole page */
+.answer pre {
+  max-width: 100%;
+  margin: 0 0 1em;
+  padding: 0.85rem 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.answer pre code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+  overflow-wrap: normal;
+}
+.answer .table-scroll {
+  max-width: 100%;
+  margin: 0 0 1em;
+  overflow-x: auto;
+}
+.answer .table-scroll table {
+  margin: 0;
+}
+/* Cells break between words, never inside them — a wide table scrolls instead */
+.answer th,
+.answer td {
+  min-width: 5.5rem;
+  overflow-wrap: break-word;
+}
+.answer hr {
+  margin: 1.5em 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.answer.streaming > :last-child::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 0.15em;
+  background: var(--yellow);
+  vertical-align: -0.12em;
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Sources */
+.sources {
+  margin-top: 1.75rem;
+}
+.sources h3 {
+  margin: 0 0 0.7rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sources ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.source {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  height: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.source:hover {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+  color: var(--ink);
+  text-decoration: none;
+}
+.source-site {
+  color: var(--blue);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+.source-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.92rem;
+  font-weight: 550;
+  line-height: 1.35;
+}
+.source-host {
+  margin-top: auto;
+  padding-top: 0.2rem;
+  color: var(--faint);
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.error {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-size: 0.95rem;
+}
+.error button {
+  flex: none;
+  margin-left: auto;
+  padding: 0.2rem 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+}

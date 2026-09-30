@@ -1,0 +1,33 @@
+---
+import "@fontsource-variable/inter"
+import "@fontsource/instrument-serif/400.css"
+import "@/styles/global.css"
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const {
+  title = "sweden.gov – en ingång till hela den offentliga sektorn",
+  description = "Ställ en fråga och få svar direkt från svenska myndigheters, regioners och kommuners egna webbplatser – med länkar till källan.",
+} = Astro.props
+---
+
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#005293" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#prompt">Hoppa till frågerutan</a>
+    <slot />
+  </body>
+</html>
